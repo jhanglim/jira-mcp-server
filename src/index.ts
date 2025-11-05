@@ -138,11 +138,6 @@ async function getIssue(issueKey: string) {
   return jiraRequest(`/issue/${issueKey}`);
 }
 
-// 프로젝트 목록 가져오기
-async function getProjects() {
-  return jiraRequest(`/project`);
-}
-
 // 특정 프로젝트 정보 가져오기
 async function getProject(projectKey: string) {
   return jiraRequest(`/project/${projectKey}`);
@@ -196,14 +191,6 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
             },
           },
           required: ["issueKey"],
-        },
-      },
-      {
-        name: "list_jira_projects",
-        description: "접근 가능한 모든 Jira 프로젝트 목록을 가져옵니다",
-        inputSchema: {
-          type: "object",
-          properties: {},
         },
       },
       {
@@ -325,30 +312,6 @@ ${JSON.stringify({
 정확한 링크: ${JIRA_BASE_URL}/browse/${issue.key}
 
 ${JSON.stringify(formattedIssue, null, 2)}`,
-          },
-        ],
-      };
-    }
-
-    if (request.params.name === "list_jira_projects") {
-      const projects = await getProjects();
-      
-      const formattedProjects = (Array.isArray(projects) ? projects : []).map((project: any) => ({
-        key: project.key || "",
-        name: project.name || "",
-        link: `${JIRA_BASE_URL}/browse/${project.key}`,
-        lead: safeGet(project, 'lead.displayName') || safeGet(project, 'lead.name', 'Unknown'),
-        description: project.description || "",
-      }));
-
-      return {
-        content: [
-          {
-            type: "text",
-            text: JSON.stringify({
-              total: formattedProjects.length,
-              projects: formattedProjects,
-            }, null, 2),
           },
         ],
       };
